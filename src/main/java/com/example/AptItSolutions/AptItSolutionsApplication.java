@@ -1,4 +1,4 @@
-package com.example.AptItSolutions;
+package com.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,17 +10,10 @@ public class AptItSolutionsApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(AptItSolutionsApplication.class, args);
-        System.out.println("HELLO APT IT SOLUTIONS");
     }
 
     @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(AptItSolutionsApplication.class);
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(AptItSolutionsApplication.class);
     }
 }
-
-		
-		
-		
-		
-	
