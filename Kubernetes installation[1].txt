@@ -1,0 +1,92 @@
+---First install python pip version
+sudo yum install -y python3-pip
+
+---install AWS CLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+--------------------Installl kops
+
+curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+chmod +x kops
+sudo mv kops /usr/local/bin/kops
+
+-------------------Do AWS configure
+Go to IAM<-->My security connections<---> create key
+
+Access key
+Secret access key
+Default region
+Default ouput format --Json
+
+------------------Create a bucket
+create s3 bucket 
+aws s3api create-bucket \
+  --bucket vamsi-kube-123 \
+  --region us-east-2 \
+  --create-bucket-configuration LocationConstraint=us-east-2
+
+---------------------Create cluster
+
+kops create cluster \
+  --name=testk8scluster.k8s.local \
+  --state=s3://vamsi-kube-123 \
+  --zones=us-east-2a \
+  --node-count=1 \
+  --node-size=t2.medium \
+  --master-size=t2.medium \
+  --master-volume-size=20 \
+  --node-volume-size=20
+    
+-------Do Export
+
+export KOPS_STATE_STORE=s3://vamsi-kube
+
+------Do update cluster
+ kops update cluster --name=vamsik8scluster.k8s.local --yes --admin
+ 
+ kops update cluster --name=testk8scluster.k8s.local --state=s3://vamsi-kube-123 --yes
+
+ 
+ 
+ ----Do validate 
+ kops validate cluster --name=vamsik8scluster.k8s.local
+ 
+ ------------Install kubectl on linux-amd64
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.33.0/2025-05-01/bin/linux/amd64/kubectl
+ 
+chmod 777 kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+
+echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
+
+-----------------------install minikube 
+
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
+sudo rpm -Uvh minikube-latest.x86_64.rpm
+
+Install docker and give permissions for /var/run/docker.sock
+
+ minukube start
+ 
+ 
+ kops delete cluster --name vamsik8scluster.k8s.local --state s3://vamsi-kube-123 --yes
+
+ 
+ -------------------------------Deployment process-----------------------------
+ Install git
+ clone code
+ install maven
+ mvn clean install
+ sudo vi docker file
+ 
+ FROM tomcat:9.0
+ COPY .war /usr/local/tomcat/webapps/
+ 
+ docker tag javaweb vamshidhar1128/javaweb:latest
+ docker push vamshidhar1128/javaweb:latest
+
+ kubectl port-forward --address 0.0.0.0 service/javawebcalculator-service 8080:80
+ 
+ kops delete cluster --name vamsik8scluster.k8s.local --state s3://vamsi-kube-123 --yes
